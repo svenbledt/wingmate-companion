@@ -20,21 +20,27 @@ jobs:
   build-and-release:
     runs-on: [self-hosted, windows]   # the dev machine (has dotnet + MSFS 2024 SDK + vpk)
     steps:
+      # The build ref + version come from the SAME source: the dispatch input ref when present
+      # (workflow_dispatch), else the pushed tag name (push: tags). On a dispatch run
+      # GITHUB_REF_NAME is the release repo's branch ("main"), so we must NOT derive the version
+      # from it — use the input ref. Both paths expect a monorepo tag like v0.1.0.
+      - name: Resolve build ref + version
+        shell: pwsh
+        run: |
+          $ref = '${{ github.event.inputs.ref }}'
+          if (-not $ref) { $ref = $env:GITHUB_REF_NAME }
+          $ver = $ref -replace '^v',''
+          if (-not $ver) { throw 'Could not derive a version (no dispatch ref and no v-tag).' }
+          "BUILD_REF=$ref" >> $env:GITHUB_ENV
+          "VER=$ver" >> $env:GITHUB_ENV
+
       - name: Checkout the monorepo (private)
         uses: actions/checkout@v4
         with:
           repository: WingMateMSFS/wingmate
-          ref: ${{ github.event.inputs.ref || github.ref_name }}
+          ref: ${{ env.BUILD_REF }}
           token: ${{ secrets.MONOREPO_READ_TOKEN }}
           path: monorepo
-
-      - name: Derive version from tag
-        shell: pwsh
-        run: |
-          $ver = ($env:GITHUB_REF_NAME) -replace '^v',''
-          if (-not $ver) { $ver = '${{ github.event.inputs.ref }}' -replace '^v','' }
-          if (-not $ver) { throw 'Could not derive a version (no v-tag and no dispatch ref).' }
-          "VER=$ver" >> $env:GITHUB_ENV
 
       # SimConnect gate ON: the runner has the MSFS 2024 SDK. The monorepo's machine-local
       # client/Directory.Build.props is gitignored, so the checked-out copy does NOT have it.
