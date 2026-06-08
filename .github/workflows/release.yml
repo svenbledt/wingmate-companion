@@ -16,6 +16,12 @@ on:
       ref:
         description: 'monorepo ref/tag to build'
         required: true
+
+# The built-in GITHUB_TOKEN defaults to read-only; creating the GitHub Release (vpk upload)
+# needs write access to the release repo's contents/releases.
+permissions:
+  contents: write
+
 jobs:
   build-and-release:
     runs-on: [self-hosted, windows]   # the dev machine (has dotnet + MSFS 2024 SDK + vpk)
