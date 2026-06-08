@@ -1,0 +1,5 @@
+# Build output / Velopack artifacts
+Releases/
+publish/
+bin/
+obj/
