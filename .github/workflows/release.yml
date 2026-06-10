@@ -1,9 +1,9 @@
-# WingMate desktop companion â€” release pipeline.
+# WingMate desktop companion — release pipeline.
 #
 # Lives in a SEPARATE personal-GitHub repo (e.g. <user>/wingmate-companion-releases), NOT in the
 # monorepo, to stay off the org's Actions-minutes cap. Runs on a SELF-HOSTED Windows runner (the
 # maintainer's licensed dev machine) because the MSFS 2024 SDK EULA does not grant redistributing
-# the SimConnect client assemblies into cloud CI â€” the SDK never leaves the licensed machine; only
+# the SimConnect client assemblies into cloud CI — the SDK never leaves the licensed machine; only
 # the built app is published. See README.md in this folder for the full setup + runbook.
 #
 # vpk CLI surface verified against current Velopack docs (Context7, /velopack/velopack.docs).
@@ -29,7 +29,7 @@ jobs:
       # The build ref + version come from the SAME source: the dispatch input ref when present
       # (workflow_dispatch), else the pushed tag name (push: tags). On a dispatch run
       # GITHUB_REF_NAME is the release repo's branch ("main"), so we must NOT derive the version
-      # from it â€” use the input ref. Both paths expect a monorepo tag like v0.1.0.
+      # from it — use the input ref. Both paths expect a monorepo tag like v0.1.0.
       - name: Resolve build ref + version
         shell: pwsh
         run: |
@@ -110,3 +110,4 @@ jobs:
           --releaseName "v$env:VER"
           --tag "v$env:VER"
           --token ${{ secrets.GITHUB_TOKEN }}
+
