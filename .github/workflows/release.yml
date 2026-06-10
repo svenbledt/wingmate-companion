@@ -58,8 +58,7 @@ jobs:
 
       # SimConnect gate ON: the runner has the MSFS 2024 SDK. The monorepo's machine-local
       # client/Directory.Build.props is gitignored, so the checked-out copy does NOT have it.
-      # We therefore force the gate with -p:SimConnectSdkAvailable=true
-          -p:Version=$env:VER and rely on the csproj's
+      # We therefore force the gate with -p:SimConnectSdkAvailable=true and rely on the csproj's
       # DEFAULT SDK paths (C:\MSFS 2024 SDK\...). If the SDK is installed elsewhere on the runner,
       # also pass -p:MsfsSdkManagedPath=... -p:MsfsSdkNativePath=... (see README).
       - name: Publish client (SimConnect gate on)
@@ -70,6 +69,7 @@ jobs:
           -c Release
           -o ${{ github.workspace }}/publish
           -p:SimConnectSdkAvailable=true
+          -p:Version=$env:VER
 
       # Fetch the prior release into the output dir so vpk pack can generate a DELTA against it.
       # First release has none -> non-fatal. --token avoids rate limiting / private-repo issues.
