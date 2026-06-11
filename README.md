@@ -6,7 +6,8 @@ flight to WingMate and shows your in-flight readout, nearby traffic, "what I'm f
 your SimBrief flight plan, right alongside the sim.
 
 **This repository hosts the companion's releases and serves its automatic updates.** The app source
-lives in the private WingMate monorepo; this repo is the download + auto-update home.
+lives in the private [`svenbledt/wingmate-distribute`](https://github.com/svenbledt/wingmate-distribute)
+repo; this repo is the download + auto-update home.
 
 ---
 
@@ -38,27 +39,22 @@ downloaded in the background (as small **delta** patches where possible), and ap
 
 ## For maintainers — how releases are made
 
-Releases are built by a **self-hosted GitHub Actions runner** (the maintainer's licensed dev machine)
-from the private WingMate monorepo, packaged with **[Velopack](https://velopack.io)** (`vpk`), and
-published here.
+Source + the release workflow live in the private
+[`svenbledt/wingmate-distribute`](https://github.com/svenbledt/wingmate-distribute) repo. Releases are
+built by a **self-hosted GitHub Actions runner** (the maintainer's licensed dev machine), packaged
+with **[Velopack](https://velopack.io)** (`vpk`), and **published here automatically**.
 
 **Why self-hosted (not cloud CI):** the companion links against the MSFS 2024 SimConnect SDK at build
 time, and the SDK EULA doesn't grant redistributing those assemblies into cloud CI — so the build runs
 on the machine that's licensed to have the SDK; only the built app is published.
 
-**Ship a new version:**
+**Ship a new version:** tag it on the **source** repo only — the workflow there builds and publishes
+the release (and its tag) *here* automatically:
 ```bash
-# in the monorepo
+# in svenbledt/wingmate-distribute
 git tag vX.Y.Z && git push origin vX.Y.Z
-# then build + publish from the release pipeline
-gh workflow run release.yml -R svenbledt/wingmate-companion -f ref=vX.Y.Z
 ```
-The workflow checks out the monorepo at the tag, builds the client (SimConnect gate on), runs
-`vpk download → pack → upload`, and publishes a GitHub Release (full + delta + `Setup.exe` + portable).
-
-**One-time setup:** register a self-hosted Windows runner (labels `self-hosted, windows`) with `dotnet`
-+ the MSFS 2024 SDK + `vpk` (`dotnet tool install -g vpk`); add the `MONOREPO_READ_TOKEN` secret (read
-access to the private monorepo). The installed client points its update feed at this repo.
+Do **not** tag or release this repo by hand.
 
 **Signing:** deferred — releases are currently unsigned (add `vpk` `--signParams`/`--signTemplate` once a
 code-signing certificate is available).
